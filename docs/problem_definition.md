@@ -187,6 +187,15 @@ clases vacías o extremadamente desbalanceadas.
 - coordenadas agregadas o presencia de eventos geolocalizados;
 - proxy de severidad si la fuente lo permite.
 
+Nota de implementación actual:
+
+- la primera ruta pensada para esta capa era `ACLED`;
+- por restricciones de acceso con credenciales, ACLED no se usará como ruta
+  principal en esta fase;
+- la alternativa prioritaria pasa a ser `UCDP GED + UCDP Candidate`, porque
+  ofrece eventos georreferenciados descargables sin credenciales y permite
+  cubrir `2024` con GED y `2025-2026` con Candidate.
+
 ### Texto y noticias
 
 - volumen de artículos o menciones;

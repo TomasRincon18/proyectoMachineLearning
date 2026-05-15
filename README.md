@@ -106,7 +106,7 @@ Primero trabajaremos con muestras pequeñas.
 
 | Fuente | Tipo | Rol esperado en el proyecto |
 | --- | --- | --- |
-| ACLED | Estructurada | Eventos de conflicto, actores, fechas, lugares y tipos de evento. Candidata principal para construir labels o targets. |
+| UCDP GED + UCDP Candidate | Estructurada | Eventos georreferenciados de violencia organizada, con fecha, país, coordenadas y fatalidades. Candidata principal para construir labels o targets sin depender de credenciales. |
 | GDELT | Textual/API | Noticias, menciones, tono, volumen mediático y posibles variables NLP. |
 | BBC RSS o Al Jazeera RSS | Textual/RSS | Corpus noticioso complementario y contraste editorial. |
 | OpenSky | Movilidad/API | Actividad aérea agregada por ventana temporal y zona, si la cobertura es suficiente. |
@@ -114,7 +114,7 @@ Primero trabajaremos con muestras pequeñas.
 
 Plan inicial de fuentes:
 
-- fuente estructurada: `ACLED`;
+- fuente estructurada: `UCDP GED + UCDP Candidate`;
 - fuente textual principal: `GDELT`;
 - fuente textual complementaria: `BBC RSS` o `Al Jazeera RSS`;
 - fuente contextual o movilidad: `OpenSky` o `NASA FIRMS`.
@@ -248,7 +248,11 @@ Estado actual:
 - script de validación creado: `src/ingestion/validate_gdelt.py`;
 - GDELT queda aceptada provisionalmente como fuente textual/noticiosa y señal
   complementaria de eventos derivados de noticias;
-- pendientes: ACLED, RSS noticioso, OpenSky y NASA FIRMS.
+- ACLED no se tomará como ruta principal porque hoy requiere credenciales para un
+  acceso reproducible desde este entorno;
+- alternativa estructurada prioritaria: `UCDP GED + UCDP Candidate`, por
+  descarga pública y cobertura útil para 2024-2026;
+- pendientes: validar UCDP, RSS noticioso, OpenSky y NASA FIRMS.
 
 Hallazgos clave de GDELT:
 
@@ -448,7 +452,9 @@ Resultado esperado:
 | 2026-05-14 | Se completa la Fase 0 con estructura, dependencias y convenciones iniciales. | Hecho |
 | 2026-05-14 | Se completa la primera versión de Fase 1 en `docs/problem_definition.md`. | Hecho |
 | 2026-05-15 | Se inicia Fase 2 y se valida GDELT como fuente provisional. | Hecho |
-| Pendiente | Validar ACLED con muestra pequeña o documentar bloqueo por credenciales. | Pendiente |
+| 2026-05-15 | Se prepara `src/ingestion/validate_acled.py` y se documenta el bloqueo actual por falta de credenciales. | Hecho |
+| 2026-05-15 | Se decide no usar ACLED como ruta principal por dependencia de credenciales y se propone `UCDP GED + UCDP Candidate` como reemplazo estructurado abierto. | Hecho |
+| Pendiente | Validar `UCDP GED + UCDP Candidate` como fuente estructurada principal. | Pendiente |
 | Pendiente | Validar fuente RSS noticiosa complementaria. | Pendiente |
 | Pendiente | Validar fuente contextual o movilidad: OpenSky o NASA FIRMS. | Pendiente |
 | Pendiente | Confirmar fuentes finales, regiones y período después de validar datos. | Pendiente |

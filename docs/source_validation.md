@@ -34,7 +34,8 @@ Cada fuente se evaluará con los mismos criterios:
 | Fuente | Tipo esperado | Estado | Decisión provisional |
 | --- | --- | --- | --- |
 | GDELT | Textual / eventos noticiosos | Validada inicialmente | Aceptada provisionalmente |
-| ACLED | Eventos estructurados | Pendiente | Pendiente |
+| ACLED | Eventos estructurados | Bloqueada por credenciales | No seleccionada para la ruta principal |
+| UCDP GED + UCDP Candidate | Eventos estructurados | Pendiente de validación | Alternativa prioritaria |
 | BBC RSS / Al Jazeera RSS | Texto noticioso | Pendiente | Pendiente |
 | OpenSky | Movilidad aérea | Pendiente | Pendiente |
 | NASA FIRMS | Contexto satelital | Pendiente | Pendiente |
@@ -245,3 +246,140 @@ Variables candidatas para Fase 4:
 - `gdelt_doc_volume`;
 - `gdelt_source_country_count`;
 - `gdelt_theme_count`.
+
+## Fuente 2: ACLED
+
+### Rol esperado
+
+ACLED es la candidata principal para aportar la capa estructurada del proyecto:
+
+- eventos de conflicto con fecha y país;
+- actores y tipos de evento;
+- fatalidades reportadas;
+- georreferenciación y nivel administrativo;
+- posible base para construir el target de escalada.
+
+### Documentación revisada
+
+- API documentation: https://acleddata.com/acled-api-documentation
+- Getting started: https://acleddata.com/api-documentation/getting-started
+- ACLED endpoint: https://acleddata.com/api-documentation/acled-endpoint
+
+### Estado actual
+
+Fecha de preparación local:
+
+```text
+2026-05-15
+```
+
+Script preparado:
+
+```bash
+python3 src/ingestion/validate_acled.py
+```
+
+El script:
+
+- carga credenciales desde `.env`;
+- intenta primero el flujo OAuth actual con `ACLED_EMAIL` + `ACLED_PASSWORD`;
+- deja un fallback con `ACLED_EMAIL` + `ACLED_KEY` por compatibilidad;
+- consulta una muestra pequeña para Irán, Israel, Irak, Siria, Líbano y Yemen;
+- escribe salidas de validación en `data/raw/` y `reports/tables/`.
+
+### Resultado actual
+
+La validación quedó **bloqueada por credenciales faltantes**.
+
+Resumen de la primera ejecución local:
+
+- no existe `.env` en esta máquina;
+- no hay `ACLED_EMAIL`;
+- no hay `ACLED_PASSWORD`;
+- tampoco hay `ACLED_KEY`;
+- por eso no fue posible autenticar ni confirmar acceso real al endpoint.
+
+Archivos generados localmente:
+
+- `data/raw/acled_validation_sample.json`
+- `reports/tables/acled_validation_summary.md`
+
+### Decisión provisional
+
+ACLED queda **fuera de la ruta principal** en esta fase.
+
+Razones:
+
+- el proyecto busca fuentes abiertas y reproducibles desde un entorno limpio;
+- hoy no contamos con credenciales de ACLED en este entorno;
+- incluso si se consiguen, el acceso deja de ser completamente libre y agrega
+  fricción para replicar el pipeline por otra persona del curso;
+- necesitamos avanzar primero con una fuente estructurada utilizable de
+  inmediato.
+
+### Próximo paso mínimo
+
+1. Mantener `ACLED` documentada como opción secundaria.
+2. Priorizar validación de `UCDP GED + UCDP Candidate`.
+3. Solo volver a ACLED si UCDP falla por cobertura o integración.
+
+## Fuente 3: UCDP GED + UCDP Candidate
+
+### Rol esperado
+
+`UCDP GED` y `UCDP Candidate` pueden reemplazar la capa estructurada que se
+esperaba cubrir con ACLED:
+
+- eventos individuales de violencia organizada;
+- fecha y georreferenciación al nivel de día y lugar;
+- país, coordenadas y variables de severidad;
+- base razonable para construir el target o al menos su componente factual.
+
+### Documentación revisada
+
+- Dataset Download Center: https://ucdp.uu.se/downloads/
+- API Documentation: https://ucdp.uu.se/apidocs/index.html
+
+### Hallazgos preliminares de documentación
+
+- UCDP publica descargas gratuitas de sus datasets actuales y los distribuye bajo
+  licencia `CC BY 4.0`;
+- `UCDP GED` global versión `25.1` cubre eventos individuales de violencia
+  organizada en `1989-2024`;
+- `UCDP Candidate` publica releases mensuales con rezago corto y sirve para
+  extender cobertura reciente;
+- en la documentación oficial disponible el release mensual más reciente visible
+  es `March 2026 | Version 26.0.3`;
+- la API de UCDP actualmente usa token de acceso desde febrero de 2026, pero las
+  descargas de datasets siguen siendo públicas.
+
+### Ventajas frente a ACLED para este proyecto
+
+- no depende de credenciales para descargar los archivos;
+- es más reproducible para entrega y revisión por terceros;
+- encaja mejor con la política del proyecto de usar fuentes abiertas y gratuitas;
+- conserva granularidad suficiente para `region-dia`;
+- permite separar una capa factual de la capa mediática de `GDELT`.
+
+### Riesgos y limitaciones
+
+- `GED` anual llega a `2024`, así que para `2025-2026` hay que combinarlo con
+  `UCDP Candidate`;
+- `UCDP Candidate` no es exactamente el mismo producto final anual y debe
+  documentarse cualquier diferencia metodológica;
+- la integración de dos releases o productos exige cuidado con columnas, IDs y
+  deduplicación;
+- como toda fuente de conflicto, también tiene criterios editoriales y límites de
+  cobertura.
+
+### Decisión provisional
+
+`UCDP GED + UCDP Candidate` queda como **alternativa prioritaria** para ocupar la
+fuente estructurada principal del proyecto.
+
+### Próximo paso mínimo
+
+1. Descargar una muestra pequeña de `GED 25.1`.
+2. Descargar una muestra pequeña de `UCDP Candidate 26.0.3`.
+3. Revisar compatibilidad de columnas, países del proyecto y fechas recientes.
+4. Confirmar si la combinación cubre bien `2024-01-01` a `2026-05-08`.
